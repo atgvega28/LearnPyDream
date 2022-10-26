@@ -61,12 +61,58 @@ def likelihood(parameter_vector):
     return logp_ctotal
 
 niterations = 10000
+#converged = False
+nchains = 1 # nchains = 5
 
-nchains = 1
+# https://pydream.readthedocs.io/en/latest/pydream.html#pydream-dream-module
+#pydream.core.run_dream(parameters, likelihood, nchains=5,niterations=50000,
+#start=None, restart=False, verbose=True,nverbose=10, tempering=False, **kwargs)
+
+#sampled_params: sampled parameters for each chain
+#log_ps: log proabibility for each sampled point for each chain
+#parameter: a list of parameter priors
+#likelihood: a user-defined likelihood function
+#verbose:whether to print verbose output and the current acceptance rate. Default:True
+#niterations: the number of algorithm iterations to run. Default = 50,000
+#nchains: the number of parallel DREAM chains to run. Default = 5
+#kwargs: other arguments that will be passes to the Dream class on initialization
 
 sampled_params, log_ps = run_dream(sampled_parameter_names, likelihood, niterations= niterations, nchains=nchains,
                                    multitry=False, gamma_levels=4, adapt_gamma=True, history_thin=1,
                                    model_name='robertson_dreamzs_5chain', verbose=True)
+
+                                    for chain in range(len(sampled_params)):
+                                        np.save('robertson_dreamzs_5chain_sampled_params_chain_' + str(chain) + '_' + str(total iteration),
+                                                    sampled_params[chain])
+
+                                        old_samples = [np.concatenate((old_samples[chain], sampled_params[chain]) for chain in range( nchains))]
+                                        GR = Gelman_Rubin(old_samples)
+                                        print(' A iteration: ', total_iterations, 'GR=', GR)
+                                        np.savetxt('robertson_dreamzs_5hcain_GelmanRubin_iteration_' +  str(total_iterations) + .txt, GR)
+
+#
+# # Import seaborn objects
+# from .rcmod import *  # noqa: F401,F403
+# from .utils import *  # noqa: F401,F403
+# from .palettes import *  # noqa: F401,F403
+# from .relational import *  # noqa: F401,F403
+# from .regression import *  # noqa: F401,F403
+# from .categorical import *  # noqa: F401,F403
+# from .distributions import *  # noqa: F401,F403
+# from .matrix import *  # noqa: F401,F403
+# from .miscplot import *  # noqa: F401,F403
+# from .axisgrid import *  # noqa: F401,F403
+# from .widgets import *  # noqa: F401,F403
+# from .colors import xkcd_rgb, crayons  # noqa: F401
+# from . import cm  # noqa: F401
+#
+# # Capture the original matplotlib rcParams
+# import matplotlib as mpl
+# _orig_rc_params = mpl.rcParams.copy()
+#
+# # Define the seaborn version
+# __version__ = "0.11.2"
+
 #PUSH ONTO AHPCC AND RUNNING IN BATCH
 
 #
