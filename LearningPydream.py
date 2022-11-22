@@ -6,13 +6,26 @@ from scipy.stats import norm, uniform
 import os
 import inspect
 from pydream.convergence import Gelman_Rubin
-
+import matplotlib.pyplot as plt
 from pysb.examples.robertson import model
 
 #Initialize PySB solver object for running simulations.  Simulation timespan should match experimental data.
-tspan = np.linspace(0,40, 50)
+tspan = np.linspace(0, 40, 50)
+model.parameters['k2'].value = 0.1
+model.parameters['k3'].value = 1
 solver = Solver(model, tspan)
 solver.run()
+
+print(model.rules)
+for rxn in model.reactions:
+    print(rxn)
+print(model.parameters)
+
+for obs in model.observables:
+    plt.plot(tspan, solver.yobs[obs.name], lw=2, label=obs.name)
+plt.legend(loc=0)
+plt.show()
+quit()
 
 # Add vector of PySB rate parameters to be sampled as unobserved random variables to DREAM with uniform priors.
 original_params = np.log10([param.value for param in model.parameters_rules()])
@@ -373,7 +386,7 @@ y = np.array([ 1,2,3])
 #     total_iterations = niterations
 #     nchains = 5
 #
-# # if __name__ =='__main__':(No needed only for command line)
+# # if __name__ =='__main__':
 #
 #     #Run DREAM sampling. Documentation of DREAM options is in Dream.py
 #     sampled_params, log_ps = run_dream(sampled_parameter_names, likelihood, niterations = niterations, nchains, multitry =False, gamma_levels =4, adapt_gamma=True, history_thin=1, model_name='robertson_dreamzs_5chain', verbose=True)
