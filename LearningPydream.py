@@ -11,8 +11,8 @@ from pysb.examples.robertson import model
 
 #Initialize PySB solver object for running simulations.  Simulation timespan should match experimental data.
 tspan = np.linspace(0, 40, 50)
-model.parameters['k2'].value = 0.1
-model.parameters['k3'].value = 1
+# model.parameters['k2'].value = 0.1
+# model.parameters['k3'].value = 1
 solver = Solver(model, tspan)
 solver.run()
 
@@ -24,24 +24,29 @@ print(model.parameters)
 for obs in model.observables:
     plt.plot(tspan, solver.yobs[obs.name], lw=2, label=obs.name)
 plt.legend(loc=0)
-plt.show()
-quit()
+# plt.show()
+# quit()
 
 # Add vector of PySB rate parameters to be sampled as unobserved random variables to DREAM with uniform priors.
 original_params = np.log10([param.value for param in model.parameters_rules()])
-#print(original_params)
+print(original_params)
 # By printing original params, one gets the following
 #[-1.39794001  7.47712125  4.        ]
 
 # Set upper and lower limits for uniform prior to be 3 orders of magnitude above and below original parameter values.
 lower_limits = original_params - 3
-# print(lower_limits)
+print(lower_limits)
 # By printing lower_limits, one gets the following:
 #[-4.39794001  4.47712125  1.        ]
 
-#Load experimental data to which Robertson model will be fit here.  The "experimental data" in this case is just the total C trajectory at the default model parameters with a standard deviation of .01.
+# Load experimental data to which Robertson model will be fit here.
+# The "experimental data" in this case is just the total C trajectory at the default
+# model parameters with a standard deviation of 0.01.
 pydream_path = os.path.dirname(inspect.getfile(run_dream))
-location= pydream_path+'/examples/robertson/exp_data/'
+print(inspect.getfile(run_dream))
+print(pydream_path)
+from pydream.core import run_dream
+location = pydream_path+'/examples/robertson/exp_data/'
 exp_data_ctot = np.loadtxt(location+'exp_data_ctotal.txt')
 '''
 print(exp_data_ctot)
@@ -69,6 +74,9 @@ print(exp_data_ctot)
  0.26872882 0.27106224 0.27334991 0.27559366 0.27779525 0.27995632
  0.2820784  0.28416298]
  '''
+
+# TODO: Start from here next time --LAH
+
 # #Create scipy normal probability distributions for data likelihoods
 like_ctot = norm(loc=exp_data_ctot, scale=exp_data_sd_ctot)
 print(like_ctot)
