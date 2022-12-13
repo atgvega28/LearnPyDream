@@ -11,99 +11,43 @@ from pysb.examples.robertson import model
 
 #Initialize PySB solver object for running simulations.  Simulation timespan should match experimental data.
 tspan = np.linspace(0, 40, 50)
-
-# print(tspan)
-''''
-4.89795918  5.71428571  6.53061224  7.34693878  8.16326531  8.97959184
-  9.79591837 10.6122449  11.42857143 12.24489796 13.06122449 13.87755102
- 14.69387755 15.51020408 16.32653061 17.14285714 17.95918367 18.7755102
- 19.59183673 20.40816327 21.2244898  22.04081633 22.85714286 23.67346939
- 24.48979592 25.30612245 26.12244898 26.93877551 27.75510204 28.57142857
- 29.3877551  30.20408163 31.02040816 31.83673469 32.65306122 33.46938776
- 34.28571429 35.10204082 35.91836735 36.73469388 37.55102041 38.36734694
- 39.18367347 40.        ]
- '''
 # model.parameters['k2'].value = 0.1
 # model.parameters['k3'].value = 1
 solver = Solver(model, tspan)
 solver.run()
-# print(model.rules)
-'''
-Rule('A_to_B', A() >> B(), k1),
- Rule('BB_to_BC', B() + B() >> B() + C(), k2),
- Rule('BC_to_AC', B() + C() >> A() + C(), k3),
- ])
- 
-'''
-#
-# for parameters in model.rules:
-#     print(parameters)
-'''
-Rule('A_to_B', A() >> B(), k1)
-Rule('BB_to_BC', B() + B() >> B() + C(), k2)
-Rule('BC_to_AC', B() + C() >> A() + C(), k3)
 
-'''
-#
-# for rxn in model.reactions:
-#     print(rxn)
-'''
-{'reactants': (0,), 'products': (1,), 'rate': __s0*k1, 'rule': ('A_to_B',), 'reverse': (False,)}
-{'reactants': (1, 1), 'products': (1, 2), 'rate': __s1**2*k2, 'rule': ('BB_to_BC',), 'reverse': (False,)}
-{'reactants': (1, 2), 'products': (0, 2), 'rate': __s1*__s2*k3, 'rule': ('BC_to_AC',), 'reverse': (False,)}
-'''
+print(model.rules)
+for rxn in model.reactions:
+    print(rxn)
+print(model.parameters)
 
-# print(model.parameters)
-
-# In the following lines of code, a print a graph of the concentration plots for the different enzymes
-#A_total, this graph shows a rapid decrease
-#B_total, shows a rapid decrease from higher concentration
-#c_total shows a slowly increase in concentration
-# for obs in model.observables:
-#     plt.plot(tspan, solver.yobs[obs.name], lw=2, label=obs.name)
-#     plt.legend(loc=0)
-#     plt.show()
-
-
+for obs in model.observables:
+    plt.plot(tspan, solver.yobs[obs.name], lw=2, label=obs.name)
+plt.legend(loc=0)
+# plt.show()
+# quit()
 
 # Add vector of PySB rate parameters to be sampled as unobserved random variables to DREAM with uniform priors.
 original_params = np.log10([param.value for param in model.parameters_rules()])
-# print(original_params)
-# # By printing original params, one gets the following
-# #[-1.39794001  7.47712125  4.        ]
-#
-# for parameters in model.parameters_rules():
-#     print(parameters.name, parameters.value)
-'''
-k1 0.04
-k2 30000000.0
-k3 10000.0
-'''
-# print(parameters.value)
+print(original_params)
+# By printing original params, one gets the following
+#[-1.39794001  7.47712125  4.        ]
 
-# # Set upper and lower limits for uniform prior to be 3 orders of magnitude above and below original parameter values.
+# Set upper and lower limits for uniform prior to be 3 orders of magnitude above and below original parameter values.
 lower_limits = original_params - 3
-# print(lower_limits)
-# quit()
-#one has to convert the values of the original parameters to 3 orders of magnitud( by default)
+print(lower_limits)
 # By printing lower_limits, one gets the following:
-# [-4.39794001  4.47712125  1.        ]
+#[-4.39794001  4.47712125  1.        ]
 
 # Load experimental data to which Robertson model will be fit here.
 # The "experimental data" in this case is just the total C trajectory at the default
 # model parameters with a standard deviation of 0.01.
 pydream_path = os.path.dirname(inspect.getfile(run_dream))
-# print(inspect.getfile(run_dream))
-# print(pydream_path)
+print(inspect.getfile(run_dream))
+print(pydream_path)
 from pydream.core import run_dream
 location = pydream_path+'/examples/robertson/exp_data/'
 exp_data_ctot = np.loadtxt(location+'exp_data_ctotal.txt')
-# Results from printing location
-# print(location)
-# why location does not print anything?
-
-
-#Now, I the values exp_data_ctot
 '''
 print(exp_data_ctot)
 [0.         0.02815469 0.04996189 0.06772421 0.08271075 0.09568046
@@ -131,81 +75,54 @@ print(exp_data_ctot)
  0.2820784  0.28416298]
  '''
 
-
 # TODO: Start from here next time --LAH
-def xfunc(value= 10, number = 1):
-    if value > number :
-        print("lets do")
-    else:
-        print('its over')
-
-xfunc(number = 4, value = 5 )
-quit()
-
-# def hello_world():
-#     print('hello world')
-
-hello_world = 10
-print(hello_world)
-
-
-
 
 # #Create scipy normal probability distributions for data likelihoods
 like_ctot = norm(loc=exp_data_ctot, scale=exp_data_sd_ctot)
 print(like_ctot)
-#Results from printing:
 # <scipy.stats._distn_infrastructure.rv_frozen object at 0x7f9a481b37f0>
-# there is an object that is created, and it is stored in a memory location
+# there is an object that is created and it is stored in a memory location
 
 # #Create lists of sampled pysb parameter names to use for subbing in parameter values in likelihood function.
-#subbing, means to substitute
 pysb_sampled_parameter_names = [param.name for param in model.parameters_rules()]
-print(pysb_sampled_parameter_names)
-quit()
+# print(pysb_sampled_parameter_names)
 # ['k1', 'k2', 'k3']
-# which is the same if we say:
-# for param in model.parameters_rules():
-#     print(param.name)
-# quit()
+
 
 # Define likelihood function to generate simulated data that corresponds to experimental time points.
 # This function should take as input a parameter vector (parameter values are in the order dictated by first argument to run_dream function below).
 # The function returns a log probability value for the parameter vector given the experimental data.
 
+def likelihood(parameter_vector):
 
-#likelihood: function
-#A user-defined likelihood function
-# def likelihood(parameter_vector):
-#
-#     param_dict = {pname: pvalue for pname, pvalue in zip(pysb_sampled_parameter_names, parameter_vector)}
-#
-#
-#     for pname, pvalue in param_dict.items():
-#         # Change model parameter values to current location in parameter space
-#
-#         model.parameters[pname].value = 10 ** (pvalue)
-#
-#     # Simulate experimentally measured Ctotal values.
-#
-#     solver.run()
-#
-#     # Calculate log probability contribution from simulated experimental values.
-#
-#     logp_ctotal = np.sum(like_ctot.logpdf(solver.yobs['C_total']))
-#
-#     # If model simulation failed due to integrator errors, return a log probability of -inf.
-#     if np.isnan(logp_ctotal):
-#         logp_ctotal = -np.inf
-#
-#     return logp_ctotal
-#
-# print(model.parameters)
-# likelihood(np.log10(np.array([0.04, 30000000.0, 10000.0])))
-#
-#
-# x =[1,2,3]
-# y = np.array([ 1,2,3])
+    param_dict = {pname: pvalue for pname, pvalue in zip(pysb_sampled_parameter_names, parameter_vector)}
+
+
+    for pname, pvalue in param_dict.items():
+        # Change model parameter values to current location in parameter space
+
+        model.parameters[pname].value = 10 ** (pvalue)
+
+    # Simulate experimentally measured Ctotal values.
+
+    solver.run()
+
+    # Calculate log probability contribution from simulated experimental values.
+
+    logp_ctotal = np.sum(like_ctot.logpdf(solver.yobs['C_total']))
+
+    # If model simulation failed due to integrator errors, return a log probability of -inf.
+    if np.isnan(logp_ctotal):
+        logp_ctotal = -np.inf
+
+    return logp_ctotal
+
+print(model.parameters)
+likelihood(np.log10(np.array([0.04, 30000000.0, 10000.0])))
+
+
+x =[1,2,3]
+y = np.array([ 1,2,3])
 
 
 
@@ -218,38 +135,18 @@ quit()
 # parameters_to_sample = SampledParam(uniform, loc=lower_limits, scale=6)
 #
 # sampled_parameter_names = [parameters_to_sample]
-
-#niterations: int, optional
-#The number of algorithm iterations to run. Default = 50,000
-
+#
 # niterations = 10000
 # converged = False
 # total_iterations = niterations
 # nchains = 5
 #
-
-#model_name : str
-#A model name to be used as a prefix when saving history and crossover value files.
-
 # print(__name__)
 #
 # # This is optional
 # if __name__ == '__main__':
 #
 #     # Run DREAM sampling.  Documentation of DREAM options is in Dream.py.
-## likelihood: function
-##A user-defined likelihood function
-'''
-nchains: int, optional
-The number of parallel DREAM chains to run. Default = 5
-niterations: int, optional
-The number of algorithm iterations to run. Default = 50,000
-verbose: Boolean, optional
-Whether to print verbose output (including acceptance 
-or rejection of moves and the current acceptance rate). Default: True
-
-'''
-
 #     sampled_params, log_ps = run_dream(sampled_parameter_names, likelihood, niterations=niterations, nchains=nchains,
 #                                        multitry=False, gamma_levels=4, adapt_gamma=True, history_thin=1,
 #                                        model_name='robertson_dreamzs_5chain', verbose=True)
