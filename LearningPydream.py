@@ -63,27 +63,25 @@ print(exp_data_ctot)
 
 exp_data_sd_ctot = np.loadtxt(location+'exp_data_sd_ctotal.txt')
 '''
-print(exp_data_ctot)
-[0.         0.02815469 0.04996189 0.06772421 0.08271075 0.09568046
- 0.10712091 0.11736312 0.12664126 0.13512705 0.14295015 0.15021059
- 0.15698735 0.16334381 0.16933143 0.17499278 0.18036338 0.18547317
- 0.19034762 0.19500866 0.1994752  0.20376372 0.20788856 0.21186256
- 0.21569699 0.21940193 0.2229863  0.22645817 0.2298248  0.23309275
- 0.23626797 0.2393559  0.24236147 0.24528923 0.24814335 0.25092763
- 0.25364563 0.25630061 0.25889559 0.26143337 0.26391658 0.26634764
- 0.26872882 0.27106224 0.27334991 0.27559366 0.27779525 0.27995632
- 0.2820784  0.28416298]
- '''
+print(exp_data_sd_ctot)
+[0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01]
+'''
+plt.errorbar(tspan, exp_data_ctot, yerr=exp_data_sd_ctot, fmt='o', ms=2, capsize=2)
+plt.show()
+quit()
 
 # TODO: Start from here next time --LAH
 
-# #Create scipy normal probability distributions for data likelihoods
+# Create scipy normal probability distributions for data likelihoods
 like_ctot = norm(loc=exp_data_ctot, scale=exp_data_sd_ctot)
 print(like_ctot)
 # <scipy.stats._distn_infrastructure.rv_frozen object at 0x7f9a481b37f0>
 # there is an object that is created and it is stored in a memory location
 
-# #Create lists of sampled pysb parameter names to use for subbing in parameter values in likelihood function.
+# Create lists of sampled pysb parameter names to use for subbing in parameter values in likelihood function.
 pysb_sampled_parameter_names = [param.name for param in model.parameters_rules()]
 # print(pysb_sampled_parameter_names)
 # ['k1', 'k2', 'k3']
