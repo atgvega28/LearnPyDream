@@ -9,7 +9,7 @@ from pydream.convergence import Gelman_Rubin
 import matplotlib.pyplot as plt
 from pysb.examples.robertson import model
 
-#Initialize PySB solver object for running simulations.  Simulation timespan should match experimental data.
+# Initialize PySB solver object for running simulations.  Simulation timespan should match experimental data.
 tspan = np.linspace(0, 40, 50)
 # model.parameters['k2'].value = 0.1
 # model.parameters['k3'].value = 1
@@ -31,13 +31,13 @@ plt.legend(loc=0)
 original_params = np.log10([param.value for param in model.parameters_rules()])
 print(original_params)
 # By printing original params, one gets the following
-#[-1.39794001  7.47712125  4.        ]
+# [-1.39794001  7.47712125  4.        ]
 
 # Set upper and lower limits for uniform prior to be 3 orders of magnitude above and below original parameter values.
 lower_limits = original_params - 3
 print(lower_limits)
 # By printing lower_limits, one gets the following:
-#[-4.39794001  4.47712125  1.        ]
+# [-4.39794001  4.47712125  1.        ]
 
 # Load experimental data to which Robertson model will be fit here.
 # The "experimental data" in this case is just the total C trajectory at the default
@@ -70,28 +70,26 @@ print(exp_data_sd_ctot)
   0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01]
  '''
 plt.errorbar(tspan, exp_data_ctot, yerr=exp_data_sd_ctot, fmt='o', ms=2, capsize=2)
-plt.show()
-quit()
+# plt.show()
+# quit()
 
 
 # Example code for functions
-def xfunc(value=10, number=1):
-    if value > number:
-        print("lets do")
-    else:
-        print('its over')
-
-
-xfunc(number=4, value=5)
-quit()
+# def xfunc(value=10, number=1):
+#     if value > number:
+#         print("lets do")
+#     else:
+#         print('its over')
+#
+#
+# xfunc(number=4, value=5)
+# quit()
 
 # def hello_world():
 #     print('hello world')
 
-hello_world = 10
-print(hello_world)
-
-# TODO: Start from here next time --LAH
+# hello_world = 10
+# print(hello_world)
 
 # Create scipy normal probability distributions for data likelihoods
 like_ctot = norm(loc=exp_data_ctot, scale=exp_data_sd_ctot)
@@ -101,29 +99,33 @@ print(like_ctot)
 
 # Create lists of sampled pysb parameter names to use for subbing in parameter values in likelihood function.
 pysb_sampled_parameter_names = [param.name for param in model.parameters_rules()]
+print(pysb_sampled_parameter_names)
 # print(pysb_sampled_parameter_names)
 # ['k1', 'k2', 'k3']
 
-
 # Define likelihood function to generate simulated data that corresponds to experimental time points.
-# This function should take as input a parameter vector (parameter values are in the order dictated by first argument to run_dream function below).
+# This function should take as input a parameter vector (parameter values are in the order dictated by first argument
+# to run_dream function below).
 # The function returns a log probability value for the parameter vector given the experimental data.
+
 
 def likelihood(parameter_vector):
 
-    param_dict = {pname: pvalue for pname, pvalue in zip(pysb_sampled_parameter_names, parameter_vector)}
+    for i, pname in enumerate(pysb_sampled_parameter_names):
+        model.parameters[pname].value = 10 ** parameter_vector[i]
 
-
-    for pname, pvalue in param_dict.items():
-        # Change model parameter values to current location in parameter space
-
-        model.parameters[pname].value = 10 ** (pvalue)
+    # param_dict = {pname: pvalue for pname, pvalue in zip(pysb_sampled_parameter_names, parameter_vector)}
+    # for pname, pvalue in param_dict.items():
+    #     # Change model parameter values to current location in parameter space
+    #     model.parameters[pname].value = 10 ** pvalue
 
     # Simulate experimentally measured Ctotal values.
 
     solver.run()
 
     # Calculate log probability contribution from simulated experimental values.
+
+    # TODO: Start from here next time --LAH
 
     logp_ctotal = np.sum(like_ctot.logpdf(solver.yobs['C_total']))
 
@@ -133,16 +135,17 @@ def likelihood(parameter_vector):
 
     return logp_ctotal
 
-print(model.parameters)
-likelihood(np.log10(np.array([0.04, 30000000.0, 10000.0])))
+
+# print(model.parameters)
+pvector = [np.log10(p.value) for p in model.parameters_rules()]
+print(pvector)
+likelihood(pvector)
 
 
-x =[1,2,3]
-y = np.array([ 1,2,3])
+x = [1, 2, 3]
+y = np.array([1, 2, 3])
 
-
-
-# # Add vector of PySB rate parameters to be sampled as unobserved random variables to DREAM with uniform priors.
+# Add vector of PySB rate parameters to be sampled as unobserved random variables to DREAM with uniform priors.
 #
 # original_params = np.log10([param.value for param in model.parameters_rules()])
 # # Set upper and lower limits for uniform prior to be 3 orders of magnitude above and below original parameter values.
